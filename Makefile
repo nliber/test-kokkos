@@ -1,5 +1,8 @@
 # Please run 'module load dpcpp' in your environment before executing this Makefile
 # so that the correct version of clang++ is first in the PATH (among other reasons)
+#
+# This Makefile just sets things up so that "make foo" will build foo.cpp into foo
+# with the correct command line options
 KOKKOS_SRC_PATH=/home/nliber/git/github.com/nliber/kokkos-sycl
 CXX=clang++
 KOKKOS_DEVICES=SyCL
