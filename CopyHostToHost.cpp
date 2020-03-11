@@ -1,26 +1,31 @@
 #include <Kokkos_Core.hpp>
 #include <iostream>
 
-int main()
-{
+template <typename V>
+void printView(V const& v, std::ostream& os = std::cout) {
+    auto const size = v.size();
+    for (size_t s = 0; s != size; ++s) os << v[s] << '\n';
+    os << '\n';
+}
+
+int main() {
+    //using Space = Kokkos::HostSpace;
+    using Space = Kokkos::Experimental::HostUSMMemorySpace;
+
     Kokkos::ScopeGuard _;
-    Kokkos::View<int*, Kokkos::Experimental::SYCLHostUSMSpace> v("V", 10);
-    for (int i = 0; i != 10; ++i)
-        v[i] = i;
 
-    for (int i = 0; i != 10; ++i)
-        std::cout << v[i] << '\n';
+    Kokkos::View<int*, Space> v("V", 10);
+    printView(v);
 
-    Kokkos::View<int*, Kokkos::Experimental::SYCLHostUSMSpace> w("W", 10);
+    Kokkos::parallel_for(
+        10, KOKKOS_LAMBDA(const size_t i)
+        { v[i] = i; });
+    printView(v);
 
-    for (int i = 0; i != 10; ++i)
-        std::cout << w[i] << '\n';
+    Kokkos::View<int*, Space> w("W", v.size());
+    printView(w);
 
     Kokkos::deep_copy(w, v);
-
-    for (int i = 0; i != 10; ++i)
-        std::cout << w[i] << '\n';
-
-
+    printView(w);
 }
 
