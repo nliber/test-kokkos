@@ -4,15 +4,15 @@
 template<typename... Ts>
 void printView(Kokkos::View<int*, Ts...> const& v, std::ostream& os = std::cout) {
     os << __PRETTY_FUNCTION__ << '\n';
-    Kokkos::View<int*, Kokkos::Experimental::SYCLHostUSMSpace> vv("VV", v.size());
+    Kokkos::View<int*, Kokkos::HostSpace> vv("VV", v.size());
     Kokkos::deep_copy(vv, v);
     for (size_t s = 0; s != vv.size(); ++s) os << vv[s] << '\n';
     os << '\n';
 }
 
 int main() {
-    //using Space = Kokkos::HostSpace;
-    using Space = Kokkos::Experimental::SYCLHostUSMSpace;
+    using Space = Kokkos::HostSpace;
+    //using Space = Kokkos::Experimental::SYCLHostUSMSpace;
     //using Space = Kokkos::Experimental::SYCLDeviceUSMSpace;
 
     Kokkos::ScopeGuard _;
