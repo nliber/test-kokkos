@@ -11,22 +11,24 @@ int main() {
     Kokkos::ScopeGuard _;
 
     Space space;
+    std::cout << "Space: " << cool::pretty_name(space) << '\n';
     std::cout << "name: " << space.name() << '\n';
     std::cout << "in_parallel: " << space.in_parallel() << '\n';
+    std::cout << "concurrency: " << space.concurrency() << '\n';
     std::cout << "print_configureation: ";
     space.print_configuration(std::cout);
 
-    std::cout << "memory_space: " << cool::pretty_name((Space::memory_space*)0)
-              << '\n';
+    std::cout << "memory_space: "
+              << cool::make_pretty_name<Space::memory_space>() << '\n';
     std::cout
         << "accessible: "
         << Kokkos::SpaceAccessibility<Space, Space::memory_space>::accessible
         << '\n';
 
-    std::cout << "array_layout: " << cool::pretty_name((Space::array_layout*)0)
-              << '\n';
+    std::cout << "array_layout: "
+              << cool::make_pretty_name<Space::array_layout>() << '\n';
     std::cout << "scratch_memory_space: "
-              << cool::pretty_name((Space::scratch_memory_space*)0) << '\n';
+              << cool::make_pretty_name<Space::scratch_memory_space>() << '\n';
 
     std::cout << "is_default_constructible: "
               << std::is_default_constructible<Space>() << '\n';
@@ -37,22 +39,31 @@ int main() {
               << Kokkos::is_execution_space<Space>::value << '\n';
     std::cout << "is_space: " << Kokkos::is_space<Space>::value << '\n';
 
-    const bool passedTestIncrExecSpaceTypedef =
-        (!std::is_same<void, Space::memory_space>::value) &&
-        std::is_same<Space, Space::execution_space>::value &&
-        !std::is_same<void, Space::scratch_memory_space>::value &&
-        !std::is_same<void, Space::array_layout>::value;
-    std::cout << "TestIncrExecSpaceTypedef: " << passedTestIncrExecSpaceTypedef << '\n';
+    {
+        const bool passed =
+            (!std::is_same<void, Space::memory_space>::value) &&
+            std::is_same<Space, Space::execution_space>::value &&
+            !std::is_same<void, Space::scratch_memory_space>::value &&
+            !std::is_same<void, Space::array_layout>::value;
+        std::cout << "TestIncrExecSpaceTypedef passed: " << passed << '\n';
+    }
 
     {
         using device_type = Space::device_type;
         using memory_space = device_type::memory_space;
         using execution_space = device_type::execution_space;
 
-        const bool passed = std::is_same<device_type,
-                     Kokkos::Device<execution_space, memory_space>>::value;
-        std::cout << " TestIncrExecSpace passed: " << passed << '\n';
-    }
+        std::cout << "space::device_type: "
+                  << cool::make_pretty_name<device_type>() << '\n';
+        std::cout << "device_type::memory_space: "
+                  << cool::make_pretty_name<memory_space>() << '\n';
+        std::cout << "device_type::execution_space: "
+                  << cool::make_pretty_name<execution_space>() << '\n';
 
+        const bool passed =
+            std::is_same<device_type,
+                         Kokkos::Device<execution_space, memory_space>>::value;
+        std::cout << "TestIncrExecSpace passed: " << passed << '\n';
+    }
 }
 
