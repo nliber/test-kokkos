@@ -35,6 +35,8 @@ int main() {
               << std::is_default_constructible<Space>() << '\n';
     std::cout << "is_copy_constructible: "
               << std::is_copy_constructible<Space>() << '\n';
+    std::cout << "is_destructible: "
+              << std::is_destructible<Space>() << '\n';
 
     std::cout << "is_execution_space: "
               << Kokkos::is_execution_space<Space>::value << " == 1\n";
