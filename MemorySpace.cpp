@@ -17,8 +17,8 @@ struct has_allocate : std::false_type {};
 
 template <typename T>
 struct has_allocate<T,
-                    std::void_t<decltype(std::declval<T>.allocate(size_t()))>>
-    : std::is_same<void*, decltype(std::declval<T>.allocate(size_t()))> {};
+                    std::void_t<decltype(std::declval<T>().allocate(size_t()))>>
+    : std::is_same<void*, decltype(std::declval<T>().allocate(size_t()))> {};
 
 template <typename T, typename = void>
 struct has_deallocate : std::false_type {};
@@ -31,9 +31,9 @@ template<typename T>
 }  // namespace
 
 int main() {
-    using MemorySpace = Kokkos::Experimental::SYCL;
-    // using Space = Kokkos::Experimental::SYCLHostUSMSpace;
-    // using Space = Kokkos::Experimental::SYCLDeviceUSMSpace;
+    //using MemorySpace = Kokkos::Experimental::SYCL;
+     using MemorySpace = Kokkos::Experimental::SYCLHostUSMSpace;
+    // using MemorySpace = Kokkos::Experimental::SYCLDeviceUSMSpace;
 
     Kokkos::ScopeGuard _;
 
@@ -67,5 +67,7 @@ int main() {
               << " == 1\n";
     std::cout << "has void* allocate(size_t): " << has_allocate<MemorySpace>()
               << " == 1\n";
-    std::cout << "has deallocate(void*, ptrdiff_t): " << has_deallocate<MemorySpace>() << " ==1\n";
+    std::cout << "has deallocate(void*, ptrdiff_t): " << has_deallocate<MemorySpace>() << " == 1\n";
+
+    std::cout << "is_memory_space: " << Kokkos::is_memory_space<MemorySpace>::value << " == 1\n";
 }
