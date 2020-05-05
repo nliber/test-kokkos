@@ -23,51 +23,80 @@ struct has_allocate<T,
 template <typename T, typename = void>
 struct has_deallocate : std::false_type {};
 
-template<typename T>
-    struct has_deallocate<T,
-    std::void_t<decltype(std::declval<T>().deallocate(static_cast<void*>(nullptr), ptrdiff_t()))>>
-        : std::true_type {};
+template <typename T>
+struct has_deallocate<T, std::void_t<decltype(std::declval<T>().deallocate(
+                             static_cast<void*>(nullptr), ptrdiff_t()))>>
+    : std::true_type {};
+
+template <typename MemorySpace>
+bool TestMemorySpace(std::ostream& os = std::cout) {
+    os << "MemorySpace: " << cool::make_pretty_name<MemorySpace>() << '\n';
+
+    // Conceptual requirements from
+    // <https://github.com/kokkos/kokkos/wiki/Kokkos-Concepts>
+    os << "is_copy_constructible: " << std::is_copy_constructible<MemorySpace>()
+       << " == 1\n";
+    os << "is_default_constructible: "
+       << std::is_default_constructible<MemorySpace>() << " == 1\n";
+    os << "is_destructible: " << std::is_destructible<MemorySpace>()
+       << " == 1 \n";
+
+    using memory_space = typename MemorySpace::memory_space;
+    os << "is_same<MemorySpace, MemorySpace::memory_space>: "
+       << std::is_same<MemorySpace, memory_space>() << " == 1 ("
+       << cool::make_pretty_name<MemorySpace>()
+       << " == " << cool::make_pretty_name<memory_space>() << ")\n";
+
+    using execution_space = typename MemorySpace::execution_space;
+    os << "is_execution_space<MemorySpace::execution_space>: "
+       << Kokkos::is_execution_space<execution_space>::value << " == 1 ("
+       << cool::make_pretty_name<execution_space>() << ")\n";
+
+    using device_type = typename MemorySpace::device_type;
+    os << "device_type: " << cool::make_pretty_name<device_type>() << '\n';
+
+    os << "has const char* name(): " << has_name<MemorySpace>() << " == 1\n";
+    os << "has void* allocate(size_t): " << has_allocate<MemorySpace>()
+       << " == 1\n";
+    os << "has deallocate(void*, ptrdiff_t): " << has_deallocate<MemorySpace>()
+       << " == 1\n";
+
+    os << "is_memory_space: " << Kokkos::is_memory_space<MemorySpace>::value
+       << " == 1\n";
+
+    return std::is_copy_constructible<MemorySpace>() &&
+           std::is_default_constructible<MemorySpace>() &&
+           Kokkos::is_execution_space<execution_space>::value &&
+           has_name<MemorySpace>() && has_allocate<MemorySpace>() &&
+           has_deallocate<MemorySpace>() &&
+           Kokkos::is_memory_space<MemorySpace>::value;
+}
 
 }  // namespace
 
 int main() {
-    //using MemorySpace = Kokkos::Experimental::SYCL;
-     using MemorySpace = Kokkos::Experimental::SYCLHostUSMSpace;
-    // using MemorySpace = Kokkos::Experimental::SYCLDeviceUSMSpace;
-
     Kokkos::ScopeGuard _;
 
-    std::cout << "MemorySpace: " << cool::make_pretty_name<MemorySpace>()
-              << '\n';
+    bool isSYCLMemorySpace = TestMemorySpace<Kokkos::Experimental::SYCL>();
+    std::cout << '\n';
 
-    // Conceptual requirements from
-    // <https://github.com/kokkos/kokkos/wiki/Kokkos-Concepts>
-    std::cout << "is_copy_constructible: "
-              << std::is_copy_constructible<MemorySpace>() << " == 1\n";
-    std::cout << "is_default_constructible: "
-              << std::is_default_constructible<MemorySpace>() << " == 1\n";
-    std::cout << "is_destructible: " << std::is_destructible<MemorySpace>()
-              << " == 1 \n";
+    bool isSYCLHostUSMSpaceMemorySpace =
+        TestMemorySpace<Kokkos::Experimental::SYCLHostUSMSpace>();
+    std::cout << '\n';
 
-    using memory_space = MemorySpace::memory_space;
-    std::cout << "is_same<MemorySpace, MemorySpace::memory_space>: "
-              << std::is_same<MemorySpace, memory_space>() << " == 1 ("
-              << cool::make_pretty_name<MemorySpace>()
-              << " == " << cool::make_pretty_name<memory_space>() << ")\n";
+    bool isSYCLDeviceUSMSpaceMemorySpace =
+        TestMemorySpace<Kokkos::Experimental::SYCLDeviceUSMSpace>();
+    std::cout << '\n';
 
-    using execution_space = MemorySpace::execution_space;
-    std::cout << "is_execution_space<MemorySpace::execution_space>: "
-              << Kokkos::is_execution_space<execution_space>::value << " == 1 ("
-              << cool::make_pretty_name<execution_space>() << ")\n";
+    bool isSYCLSharedUSMSpaceMemorySpace =
+        TestMemorySpace<Kokkos::Experimental::SYCLSharedUSMSpace>();
+    std::cout << '\n';
 
-    std::cout << "device_type: "
-              << cool::make_pretty_name<MemorySpace::device_type>() << '\n';
+    assert(!isSYCLMemorySpace);
+    assert(isSYCLHostUSMSpaceMemorySpace);
+    assert(isSYCLDeviceUSMSpaceMemorySpace);
+    assert(isSYCLSharedUSMSpaceMemorySpace);
 
-    std::cout << "has const char* name(): " << has_name<MemorySpace>()
-              << " == 1\n";
-    std::cout << "has void* allocate(size_t): " << has_allocate<MemorySpace>()
-              << " == 1\n";
-    std::cout << "has deallocate(void*, ptrdiff_t): " << has_deallocate<MemorySpace>() << " == 1\n";
-
-    std::cout << "is_memory_space: " << Kokkos::is_memory_space<MemorySpace>::value << " == 1\n";
+    return 0;
 }
+
