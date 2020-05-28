@@ -18,17 +18,19 @@ template <typename T, typename = void>
 struct has_allocate : std::false_type {};
 
 template <typename T>
-struct has_allocate<T,
-                    std::void_t<decltype(std::declval<T>().allocate(size_t()))>>
-    : std::is_same<decltype(std::declval<T>().allocate(size_t())), void*> {};
+struct has_allocate<T, std::void_t<decltype(std::declval<std::add_const_t<T>>()
+                                                .allocate(size_t()))>>
+    : std::is_same<decltype(
+                       std::declval<std::add_const_t<T>>().allocate(size_t())),
+                   void*> {};
 
 template <typename T, typename = void>
 struct has_deallocate : std::false_type {};
 
 template <typename T>
-struct has_deallocate<T, std::void_t<decltype(std::declval<T>().deallocate(
-                             static_cast<void*>(nullptr), ptrdiff_t()))>>
-    : std::true_type {};
+struct has_deallocate<
+    T, std::void_t<decltype(std::declval<std::add_const_t<T>>().deallocate(
+           static_cast<void*>(nullptr), ptrdiff_t()))>> : std::true_type {};
 
 template <typename T, typename = void>
 struct has_print_configuration_ostream : std::false_type {};
