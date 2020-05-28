@@ -14,6 +14,48 @@ struct has_name<
     : std::is_same<decltype(std::declval<std::add_const_t<T>>().name()),
                    const char*> {};
 
+template <typename, typename = void>
+struct has_execution_space : std::false_type {};
+
+template <typename T>
+struct has_execution_space<T, std::void_t<typename T::execution_space>>
+    : std::true_type {};
+
+template <typename, typename = void>
+struct has_memory_space : std::false_type {};
+
+template <typename T>
+struct has_memory_space<T, std::void_t<typename T::memory_space>>
+    : std::true_type {};
+
+template <typename, typename = void>
+struct has_size_type : std::false_type {};
+
+template <typename T>
+struct has_size_type<T, std::void_t<typename T::size_type>> : std::true_type {};
+
+template <typename, typename = void>
+struct has_array_layout : std::false_type {};
+
+template <typename T>
+struct has_array_layout<T, std::void_t<typename T::array_layout>>
+    : std::true_type {};
+
+template <typename, typename = void>
+struct has_scratch_memory_space : std::false_type {};
+
+template <typename T>
+struct has_scratch_memory_space<T,
+                                std::void_t<typename T::scratch_memory_space>>
+    : std::true_type {};
+
+template <typename, typename = void>
+struct has_device_type : std::false_type {};
+
+template <typename T>
+struct has_device_type<T, std::void_t<typename T::device_type>>
+    : std::true_type {};
+
 template <typename T, typename = void>
 struct has_allocate : std::false_type {};
 
@@ -113,73 +155,146 @@ bool TestMemorySpace(std::ostream& os = std::cout) {
 
 template <typename ExecutionSpace>
 bool TestExecutionSpace(std::ostream& os = std::cout) {
-    auto executionSpacePn = cool::make_pretty_name<ExecutionSpace>();
-
-    os << "ExecutionSpace: " << executionSpacePn << '\n';
-
-    using execution_space = typename ExecutionSpace::execution_space;
-    auto execution_space_pn = cool::make_pretty_name<execution_space>();
-
-    os << "ExecutionSpace::execution_space: " << execution_space_pn << '\n';
-
-    const bool isSameExecutionSpace =
-        std::is_same<ExecutionSpace, execution_space>();
-    os << "ExecutionSpace == ExecutionSpace::execution_space: "
-       << isSameExecutionSpace << " == 1\n";
-
-    using memory_space = typename ExecutionSpace::memory_space;
-    auto memory_space_pn = cool::make_pretty_name<memory_space>();
-    os << "ExecutionSpace::memory_space: " << memory_space_pn << '\n';
-
-    using device_type = typename ExecutionSpace::device_type;
-    auto device_type_pn = cool::make_pretty_name<device_type>();
-    os << "ExecutionSpace::device_type: " << device_type_pn << '\n';
-
-    using Device = Kokkos::Device<execution_space, memory_space>;
-    bool isSameDevice = std::is_same<device_type, Device>();
-    os << "ExecutionSpace::device_type == Device<executionSpace, "
-          "memory_space>: "
-       << isSameDevice << " == 1\n";
-
-    using scratch_memory_space = typename ExecutionSpace::scratch_memory_space;
-    auto scratch_memory_space_pn =
-        cool::make_pretty_name<scratch_memory_space>();
-    os << "ExecutionSpace::scratch_memory_space: " << scratch_memory_space_pn
+    os << "ExecutionSpace: " << cool::make_pretty_name<ExecutionSpace>()
        << '\n';
 
-    using array_layout = typename ExecutionSpace::array_layout;
-    auto array_layout_pn = cool::make_pretty_name<array_layout>();
-    os << "ExecutionSpace::array_layout: " << array_layout_pn << '\n';
+    bool isCopyConstructible = std::is_copy_constructible<ExecutionSpace>();
+    os << "is_copy_constructible<ExecutionSpace>: " << isCopyConstructible
+       << '\n';
 
     bool isDefaultConstructible =
         std::is_default_constructible<ExecutionSpace>();
-    os << "is default constructible: " << isDefaultConstructible << " == 1\n";
+    os << "is_default_constructible<ExecutionSpace>: " << isDefaultConstructible
+       << '\n';
 
-    bool isCopyConstructible = std::is_copy_constructible<ExecutionSpace>();
-    os << "is copy constructible: " << isCopyConstructible << " == 1\n";
+    bool isDestructible = std::is_destructible<ExecutionSpace>();
+    os << "is_destructible<ExecutionSpace>: " << isDestructible << '\n';
+
+    bool hasExecutionSpace = has_execution_space<ExecutionSpace>();
+    os << "has execution_space: " << hasExecutionSpace << '\n';
+
+    bool isSameExecutionSpace = false;
+    if (hasExecutionSpace) {
+        using execution_space = typename ExecutionSpace::execution_space;
+        os << "ExecutionSpace::execution_space: "
+           << cool::make_pretty_name<execution_space>() << '\n';
+
+        isSameExecutionSpace = std::is_same<ExecutionSpace, execution_space>();
+        os << "is_same<ExecutionSpace, ExecutionSpace::executionSpace>: "
+           << isSameExecutionSpace << '\n';
+    }
+
+    bool hasMemorySpace = has_memory_space<ExecutionSpace>();
+    os << "has memory_space: " << hasMemorySpace << '\n';
+
+    bool isMemorySpace = false;
+    if (hasMemorySpace) {
+        using memory_space = typename ExecutionSpace::memory_space;
+        os << "ExecutionSpace::memory_space: "
+           << cool::make_pretty_name<memory_space>() << '\n';
+
+        isMemorySpace = Kokkos::is_memory_space<memory_space>::value;
+        os << "is_memory_space<memory_space>: " << isMemorySpace << '\n';
+    }
+
+    bool hasSizeType = has_size_type<ExecutionSpace>();
+    os << "has size_type: " << hasSizeType << '\n';
+
+    bool isIntegralSizeType = false;
+    if (hasSizeType) {
+        using size_type = typename ExecutionSpace::size_type;
+        os << "ExecutionSpace::size_type: "
+           << cool::make_pretty_name<size_type>() << '\n';
+
+        isIntegralSizeType = std::is_integral<size_type>();
+        os << "is_integral<size_type>: " << isIntegralSizeType << '\n';
+    }
+
+    bool hasArrayLayout = has_array_layout<ExecutionSpace>();
+    os << "has array_layout: " << hasArrayLayout << '\n';
+
+    bool isArrayLayout = false;
+    if (hasArrayLayout) {
+        using array_layout = typename ExecutionSpace::array_layout;
+        os << "ExecutionSpace::array_layout: "
+           << cool::make_pretty_name<array_layout>() << '\n';
+
+        isArrayLayout = Kokkos::is_array_layout<array_layout>::value;
+        os << "is_array_layout<array_layout>: " << isArrayLayout << '\n';
+    }
+
+    bool hasScratchMemorySpace = has_scratch_memory_space<ExecutionSpace>();
+    os << "has scratch_memory_space: " << hasScratchMemorySpace << '\n';
+
+    bool isScratchMemorySpace = false;
+    if (hasScratchMemorySpace) {
+        using scratch_memory_space =
+            typename ExecutionSpace::scratch_memory_space;
+        os << "ExecutionSpace::scratch_memory_space: "
+           << cool::make_pretty_name<scratch_memory_space>() << '\n';
+
+        isScratchMemorySpace =
+            Kokkos::is_memory_space<scratch_memory_space>::value;
+        os << "is_memory_space<scratch_memory_space>: " << isScratchMemorySpace
+           << '\n';
+    }
+
+    bool hasDeviceType = has_device_type<ExecutionSpace>();
+    os << "has device_type: " << hasDeviceType << '\n';
+
+    bool isSameDeviceType = false;
+    if (hasDeviceType) {
+        using device_type = typename ExecutionSpace::device_type;
+        os << "ExecutionSpace::device_type: "
+           << cool::make_pretty_name<device_type>() << '\n';
+
+        if (hasMemorySpace) {
+            using memory_space = typename ExecutionSpace::memory_space;
+            using Device = Kokkos::Device<ExecutionSpace, memory_space>;
+            isSameDeviceType = std::is_same<device_type, Device>();
+        }
+
+        os << "is_same<device_type, Device<ExecutionSpace, memory_space>: "
+           << isSameDeviceType << '\n';
+    }
+
+    bool hasInParallel = has_in_parallel<ExecutionSpace>();
+    os << "has (bool)in_parallel() const: " << hasInParallel << '\n';
+
+    bool hasFence = has_fence<ExecutionSpace>();
+    os << "has fence() const: " << hasFence << '\n';
 
     bool hasName = has_name<ExecutionSpace>();
-    os << "has const char* name() const: " << hasName << " == 1\n";
+    os << "has const char* name() const: " << hasName << '\n';
 
     bool hasPrintConfigurationOstream =
         has_print_configuration_ostream<ExecutionSpace>();
-    os << "has print_configuration(ostream&) const: " << hasPrintConfigurationOstream
-       << " == 1\n";
+    os << "has print_configuration(ostream&) const: "
+       << hasPrintConfigurationOstream << '\n';
 
     bool hasPrintConfigurationOstreamBool =
         has_print_configuration_ostream_bool<ExecutionSpace>();
     os << "has print_configuration(ostream&, bool) const: "
-       << hasPrintConfigurationOstreamBool << " == 1\n";
+       << hasPrintConfigurationOstreamBool << '\n';
 
-    bool hasInParallel = has_in_parallel<ExecutionSpace>();
-    os << "has (bool)in_parallel() const: " << hasInParallel << " == 1\n";
+    bool isExecutionSpace = Kokkos::is_execution_space<ExecutionSpace>::value;
+    os << "is_execution_space<ExecutionSpace>: " << isExecutionSpace << '\n';
 
-    bool hasFence = has_fence<ExecutionSpace>();
-    os << "has fence() const: " << hasFence << " == 1 \n";
+    bool validExecutionSpace =
+        isCopyConstructible && isDefaultConstructible && isDestructible &&
+        hasExecutionSpace && isSameExecutionSpace && hasMemorySpace &&
+        isMemorySpace && hasSizeType && isIntegralSizeType && hasArrayLayout &&
+        isArrayLayout && hasScratchMemorySpace && isScratchMemorySpace &&
+        hasDeviceType && isSameDeviceType && hasInParallel && hasFence &&
+        hasName && hasPrintConfigurationOstream &&
+        hasPrintConfigurationOstreamBool && isExecutionSpace;
 
-    return isSameExecutionSpace && isSameDevice && isDefaultConstructible &&
-           isCopyConstructible && hasName && hasPrintConfigurationOstream &&
-           hasPrintConfigurationOstreamBool && hasInParallel && hasFence;
+    if (!validExecutionSpace) {
+        os << "NOT VALID ExecutionSpace: "
+           << cool::make_pretty_name<ExecutionSpace>() << '\n';
+    }
+
+    return validExecutionSpace;
 }
 
 }  // namespace
