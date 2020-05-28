@@ -159,23 +159,23 @@ bool TestExecutionSpace(std::ostream& os = std::cout) {
     os << "is copy constructible: " << isCopyConstructible << " == 1\n";
 
     bool hasName = has_name<ExecutionSpace>();
-    os << "has name: " << hasName << " == 1\n";
+    os << "has const char* name() const: " << hasName << " == 1\n";
 
     bool hasPrintConfigurationOstream =
         has_print_configuration_ostream<ExecutionSpace>();
-    os << "has print_configuration(ostream&): " << hasPrintConfigurationOstream
+    os << "has print_configuration(ostream&) const: " << hasPrintConfigurationOstream
        << " == 1\n";
 
     bool hasPrintConfigurationOstreamBool =
         has_print_configuration_ostream_bool<ExecutionSpace>();
-    os << "has print_configuration(ostream&, bool): "
+    os << "has print_configuration(ostream&, bool) const: "
        << hasPrintConfigurationOstreamBool << " == 1\n";
 
     bool hasInParallel = has_in_parallel<ExecutionSpace>();
-    os << "has in_parallel: " << hasInParallel << " == 1\n";
+    os << "has (bool)in_parallel() const: " << hasInParallel << " == 1\n";
 
     bool hasFence = has_fence<ExecutionSpace>();
-    os << "has fence: " << hasFence << " == 1 \n";
+    os << "has fence() const: " << hasFence << " == 1 \n";
 
     return isSameExecutionSpace && isSameDevice && isDefaultConstructible &&
            isCopyConstructible && hasName && hasPrintConfigurationOstream &&
