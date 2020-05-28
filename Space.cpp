@@ -111,7 +111,7 @@ struct has_fence<
 
 template <typename MemorySpace>
 bool IsMemorySpace(std::ostream& os = std::cout) {
-    os << "MemorySpace: " << cool::make_pretty_name<MemorySpace>() << '\n';
+    os << "MemorySpace: " << cool::pretty_type<MemorySpace>() << '\n';
 
     bool isCopyConstructible = std::is_copy_constructible<MemorySpace>();
     os << "is_copy_constructible<MemorySpace>: " << isCopyConstructible << '\n';
@@ -129,8 +129,7 @@ bool IsMemorySpace(std::ostream& os = std::cout) {
     bool isSameMemorySpace = false;
     if (hasMemorySpace) {
         using memory_space = typename MemorySpace::memory_space;
-        os << "memory_space: " << cool::make_pretty_name<memory_space>()
-           << '\n';
+        os << "memory_space: " << cool::pretty_type<memory_space>() << '\n';
 
         isSameMemorySpace = std::is_same<MemorySpace, memory_space>();
         os << "is_same<MemorySpace, MemorySpace::memory_space>: "
@@ -143,7 +142,7 @@ bool IsMemorySpace(std::ostream& os = std::cout) {
     bool isExecutionSpace = false;
     if (hasExecutionSpace) {
         using execution_space = typename MemorySpace::execution_space;
-        os << "execution_space: " << cool::make_pretty_name<execution_space>()
+        os << "execution_space: " << cool::pretty_type<execution_space>()
            << '\n';
 
         isExecutionSpace = Kokkos::is_execution_space<execution_space>::value;
@@ -158,7 +157,7 @@ bool IsMemorySpace(std::ostream& os = std::cout) {
     if (hasDeviceType) {
         using device_type = typename MemorySpace::device_type;
         os << "ExecutionSpace::device_type: "
-           << cool::make_pretty_name<device_type>() << '\n';
+           << cool::pretty_type<device_type>() << '\n';
 
         if (hasExecutionSpace) {
             using execution_space = typename MemorySpace::execution_space;
@@ -189,7 +188,7 @@ bool IsMemorySpace(std::ostream& os = std::cout) {
         hasAllocate && hasDeallocate && isMemorySpace;
 
     if (!validMemorySpace) {
-        os << "NOT VALID MemorySpace: " << cool::make_pretty_name<MemorySpace>()
+        os << "NOT VALID MemorySpace: " << cool::pretty_type<MemorySpace>()
            << '\n';
     }
 
@@ -198,8 +197,7 @@ bool IsMemorySpace(std::ostream& os = std::cout) {
 
 template <typename ExecutionSpace>
 bool IsExecutionSpace(std::ostream& os = std::cout) {
-    os << "ExecutionSpace: " << cool::make_pretty_name<ExecutionSpace>()
-       << '\n';
+    os << "ExecutionSpace: " << cool::pretty_type<ExecutionSpace>() << '\n';
 
     bool isCopyConstructible = std::is_copy_constructible<ExecutionSpace>();
     os << "is_copy_constructible<ExecutionSpace>: " << isCopyConstructible
@@ -220,7 +218,7 @@ bool IsExecutionSpace(std::ostream& os = std::cout) {
     if (hasExecutionSpace) {
         using execution_space = typename ExecutionSpace::execution_space;
         os << "ExecutionSpace::execution_space: "
-           << cool::make_pretty_name<execution_space>() << '\n';
+           << cool::pretty_type<execution_space>() << '\n';
 
         isSameExecutionSpace = std::is_same<ExecutionSpace, execution_space>();
         os << "is_same<ExecutionSpace, ExecutionSpace::executionSpace>: "
@@ -234,7 +232,7 @@ bool IsExecutionSpace(std::ostream& os = std::cout) {
     if (hasMemorySpace) {
         using memory_space = typename ExecutionSpace::memory_space;
         os << "ExecutionSpace::memory_space: "
-           << cool::make_pretty_name<memory_space>() << '\n';
+           << cool::pretty_type<memory_space>() << '\n';
 
         isMemorySpace = Kokkos::is_memory_space<memory_space>::value;
         os << "is_memory_space<memory_space>: " << isMemorySpace << '\n';
@@ -246,8 +244,8 @@ bool IsExecutionSpace(std::ostream& os = std::cout) {
     bool isIntegralSizeType = false;
     if (hasSizeType) {
         using size_type = typename ExecutionSpace::size_type;
-        os << "ExecutionSpace::size_type: "
-           << cool::make_pretty_name<size_type>() << '\n';
+        os << "ExecutionSpace::size_type: " << cool::pretty_type<size_type>()
+           << '\n';
 
         isIntegralSizeType = std::is_integral<size_type>();
         os << "is_integral<size_type>: " << isIntegralSizeType << '\n';
@@ -260,7 +258,7 @@ bool IsExecutionSpace(std::ostream& os = std::cout) {
     if (hasArrayLayout) {
         using array_layout = typename ExecutionSpace::array_layout;
         os << "ExecutionSpace::array_layout: "
-           << cool::make_pretty_name<array_layout>() << '\n';
+           << cool::pretty_type<array_layout>() << '\n';
 
         isArrayLayout = Kokkos::is_array_layout<array_layout>::value;
         os << "is_array_layout<array_layout>: " << isArrayLayout << '\n';
@@ -274,7 +272,7 @@ bool IsExecutionSpace(std::ostream& os = std::cout) {
         using scratch_memory_space =
             typename ExecutionSpace::scratch_memory_space;
         os << "ExecutionSpace::scratch_memory_space: "
-           << cool::make_pretty_name<scratch_memory_space>() << '\n';
+           << cool::pretty_type<scratch_memory_space>() << '\n';
 
         isScratchMemorySpace =
             Kokkos::is_memory_space<scratch_memory_space>::value;
@@ -289,7 +287,7 @@ bool IsExecutionSpace(std::ostream& os = std::cout) {
     if (hasDeviceType) {
         using device_type = typename ExecutionSpace::device_type;
         os << "ExecutionSpace::device_type: "
-           << cool::make_pretty_name<device_type>() << '\n';
+           << cool::pretty_type<device_type>() << '\n';
 
         if (hasMemorySpace) {
             using memory_space = typename ExecutionSpace::memory_space;
@@ -334,7 +332,7 @@ bool IsExecutionSpace(std::ostream& os = std::cout) {
 
     if (!validExecutionSpace) {
         os << "NOT VALID ExecutionSpace: "
-           << cool::make_pretty_name<ExecutionSpace>() << '\n';
+           << cool::pretty_type<ExecutionSpace>() << '\n';
     }
 
     return validExecutionSpace;
