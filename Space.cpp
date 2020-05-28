@@ -44,12 +44,20 @@ struct has_print_configuration_ostream_bool<
     T, std::void_t<decltype(std::declval<T>().print_configuration(
            std::declval<std::ostream&>(), bool()))>> : std::true_type {};
 
-template<typename T, typename = void>
-    struct has_in_parallel : std::false_type {};
+template <typename T, typename = void>
+struct has_in_parallel : std::false_type {};
 
 template <typename T>
-struct has_in_parallel<T, std::void_t<decltype(std::declval<T>().in_parallel())>>
+struct has_in_parallel<T,
+                       std::void_t<decltype(std::declval<T>().in_parallel())>>
     : std::is_same<bool, decltype(std::declval<T>().in_parallel())> {};
+
+template <typename T, typename = void>
+struct has_fence : std::false_type {};
+
+template <typename T>
+struct has_fence<T, std::void_t<decltype(std::declval<T>().fence())>>
+    : std::true_type {};
 
 template <typename MemorySpace>
 bool TestMemorySpace(std::ostream& os = std::cout) {
@@ -155,13 +163,15 @@ bool TestExecutionSpace(std::ostream& os = std::cout) {
     os << "has print_configuration(ostream&, bool): "
        << hasPrintConfigurationOstreamBool << " == 1\n";
 
-    bool hasInParallel =
-        has_in_parallel<ExecutionSpace>();
+    bool hasInParallel = has_in_parallel<ExecutionSpace>();
     os << "has in_parallel: " << hasInParallel << " == 1\n";
+
+    bool hasFence = has_fence<ExecutionSpace>();
+    os << "has fence: " << hasFence << " == 1 \n";
 
     return isSameExecutionSpace && isSameDevice && isDefaultConstructible &&
            isCopyConstructible && hasName && hasPrintConfigurationOstream &&
-           hasPrintConfigurationOstreamBool && hasInParallel;
+           hasPrintConfigurationOstreamBool && hasInParallel && hasFence;
 }
 
 }  // namespace
