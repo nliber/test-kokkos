@@ -9,8 +9,10 @@ template <typename T, typename = void>
 struct has_name : std::false_type {};
 
 template <typename T>
-struct has_name<T, std::void_t<decltype(std::declval<T>().name())>>
-    : std::is_same<const char*, decltype(std::declval<T>().name())> {};
+struct has_name<
+    T, std::void_t<decltype(std::declval<std::add_const_t<T>>().name())>>
+    : std::is_same<decltype(std::declval<std::add_const_t<T>>().name()),
+                   const char*> {};
 
 template <typename T, typename = void>
 struct has_allocate : std::false_type {};
@@ -18,7 +20,7 @@ struct has_allocate : std::false_type {};
 template <typename T>
 struct has_allocate<T,
                     std::void_t<decltype(std::declval<T>().allocate(size_t()))>>
-    : std::is_same<void*, decltype(std::declval<T>().allocate(size_t()))> {};
+    : std::is_same<decltype(std::declval<T>().allocate(size_t())), void*> {};
 
 template <typename T, typename = void>
 struct has_deallocate : std::false_type {};
@@ -50,7 +52,7 @@ struct has_in_parallel : std::false_type {};
 template <typename T>
 struct has_in_parallel<T,
                        std::void_t<decltype(std::declval<T>().in_parallel())>>
-    : std::is_same<bool, decltype(std::declval<T>().in_parallel())> {};
+    : std::is_convertible<decltype(std::declval<T>().in_parallel()), bool> {};
 
 template <typename T, typename = void>
 struct has_fence : std::false_type {};
