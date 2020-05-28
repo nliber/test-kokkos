@@ -35,30 +35,34 @@ struct has_print_configuration_ostream : std::false_type {};
 
 template <typename T>
 struct has_print_configuration_ostream<
-    T, std::void_t<decltype(std::declval<T>().print_configuration(
-           std::declval<std::ostream&>()))>> : std::true_type {};
+    T, std::void_t<decltype(
+           std::declval<std::add_const_t<T>>().print_configuration(
+               std::declval<std::ostream&>()))>> : std::true_type {};
 
 template <typename T, typename = void>
 struct has_print_configuration_ostream_bool : std::false_type {};
 
 template <typename T>
 struct has_print_configuration_ostream_bool<
-    T, std::void_t<decltype(std::declval<T>().print_configuration(
-           std::declval<std::ostream&>(), bool()))>> : std::true_type {};
+    T, std::void_t<decltype(
+           std::declval<std::add_const_t<T>>().print_configuration(
+               std::declval<std::ostream&>(), bool()))>> : std::true_type {};
 
 template <typename T, typename = void>
 struct has_in_parallel : std::false_type {};
 
 template <typename T>
-struct has_in_parallel<T,
-                       std::void_t<decltype(std::declval<T>().in_parallel())>>
-    : std::is_convertible<decltype(std::declval<T>().in_parallel()), bool> {};
+struct has_in_parallel<
+    T, std::void_t<decltype(std::declval<std::add_const_t<T>>().in_parallel())>>
+    : std::is_convertible<
+          decltype(std::declval<std::add_const_t<T>>().in_parallel()), bool> {};
 
 template <typename T, typename = void>
 struct has_fence : std::false_type {};
 
 template <typename T>
-struct has_fence<T, std::void_t<decltype(std::declval<T>().fence())>>
+struct has_fence<
+    T, std::void_t<decltype(std::declval<std::add_const_t<T>>().fence())>>
     : std::true_type {};
 
 template <typename MemorySpace>
