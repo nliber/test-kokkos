@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iostream>
 
+#include "PrettySpace.hpp"
+
 #include "pretty_name.h"
 
 namespace {
