@@ -42,27 +42,33 @@ void view_pf_test()
     std::cout << __PRETTY_FUNCTION__ << " After pf " << ++dummy << std::endl;
 }
 
-int main() {
-    Kokkos::ScopeGuard _;
-    view_test();
-    view_pf_test();
-    return 0;
-#if 0
-    std::cout << "Space: " << cool::pretty_type<Space>() << '\n';
-    std::cout << "memory_space: " << cool::pretty_type<memory_space>() << '\n';
-
-    using view_type = Kokkos::View<int*>;
-    std::cout << "Before " << ++dummy << std::endl;
+void view_pf_execute_test()
+{
+    std::cout << __PRETTY_FUNCTION__ << " Before view " << ++dummy << std::endl;
     view_type v("V", 1);
-    //Kokkos::deep_copy(v, v);
-    std::cout << "After " << ++dummy << std::endl;
+    std::cout << __PRETTY_FUNCTION__ << " After view " << ++dummy << std::endl;
 
-#if 1
+    std::cout << __PRETTY_FUNCTION__ << " Before pf " << ++dummy << std::endl;
     using functor_type = PF::functor_type;
     using Policy = PF::Policy;
     PF pf(functor_type{v, v}, Policy{});
-    //pf.execute();
-#endif
-#endif
+    std::cout << __PRETTY_FUNCTION__ << " After pf " << ++dummy << std::endl;
+
+    std::cout << __PRETTY_FUNCTION__ << " Before execute " << ++dummy << std::endl;
+    pf.execute();
+    std::cout << __PRETTY_FUNCTION__ << " After execute " << ++dummy << std::endl;
+}
+
+int main() {
+    Kokkos::ScopeGuard _;
+
+    view_test();
+    std::cout << std::endl;
+
+    view_pf_test();
+    std::cout << std::endl;
+
+    view_pf_execute_test();
+    std::cout << std::endl;
 }
 
