@@ -59,6 +59,17 @@ void view_pf_execute_test()
     std::cout << __PRETTY_FUNCTION__ << " After execute " << ++dummy << std::endl;
 }
 
+void view_deepcopy_test()
+{
+    std::cout << __PRETTY_FUNCTION__ << " Before view " << ++dummy << std::endl;
+    view_type v("V", 1);
+    std::cout << __PRETTY_FUNCTION__ << " After view " << ++dummy << std::endl;
+
+    std::cout << __PRETTY_FUNCTION__ << " Before deep_copy " << ++dummy << std::endl;
+    Kokkos::deep_copy(v, v);
+    std::cout << __PRETTY_FUNCTION__ << " After deep_copy " << ++dummy << std::endl;
+}
+
 int main() {
     Kokkos::ScopeGuard _;
 
@@ -69,6 +80,9 @@ int main() {
     std::cout << std::endl;
 
     view_pf_execute_test();
+    std::cout << std::endl;
+
+    view_deepcopy_test();
     std::cout << std::endl;
 }
 
