@@ -65,6 +65,9 @@ void ViewTypedefs(std::ostream& os = std::cout) {
        << '\n';
     os << "specialize: " << cool::pretty_type<typename View::specialize>()
        << '\n';
+
+    using memory_space = typename View::memory_space;
+    os << "Self accessible: " << +Kokkos::Impl::SpaceAccessibility<memory_space, memory_space>::accessible << '\n';
 }
 }  // namespace
 
