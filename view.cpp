@@ -84,9 +84,12 @@ int main() {
     Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
     Kokkos::DefaultExecutionSpace::print_configuration(std::cout, true);
 
-    using V = Kokkos::View<int*, Kokkos::Experimental::SYCLHostUSMSpace>;
+    using V = Kokkos::View<int*, Kokkos::Experimental::SYCLHostUSMSpace, Kokkos::MemoryTraits<Kokkos::UnmanagedTC>>;
+    //using V = Kokkos::View<int*, Kokkos::Experimental::SYCLDeviceUSMSpace>;
     ViewTypedefs<V>();
 
-    V v("V", 1);
+    int* i = nullptr;
+    V v(i, 1);
+    std::cout << std::is_trivially_copyable_v<V> << '\n';
 }
 

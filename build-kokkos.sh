@@ -1,6 +1,7 @@
 #!/bin/bash
 
 module purge
+#module load oneapi/2020.12.15.005
 module load oneapi
 
 declare oneapi_version="$(module info-loaded oneapi)"
@@ -21,14 +22,17 @@ cmake \
     -DCMAKE_EXE_LINKER_FLAGS= \
     -DCMAKE_INSTALL_PREFIX="${install}" \
     -DKokkos_ENABLE_SYCL=ON \
-    -DKokkos_ENABLE_TESTS=ON \
+    -DKokkos_ENABLE_TESTS=OFF \
     -DKokkos_ENABLE_EXAMPLES=OFF \
     -DKokkos_CXX_STANDARD=17 \
     -DCMAKE_VERBOSE_MAKEFILE=OFF \
     -DCMAKE_CXX_EXTENSIONS=OFF \
     -DCMAKE_BUILD_TYPE="${cmake_build_type}" \
     -DKokkos_ENABLE_DEBUG=ON \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -GNinja \
     ~-
 
-make install -j
+#make -j install
+ninja install
 

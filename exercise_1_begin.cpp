@@ -63,6 +63,12 @@ struct Init
     void operator()(int i) const { 
         v[i] = 1;
     }
+    Init(Init const&) = default;
+    Init& operator=(Init const&) = default;
+    Init& operator=(Init&&) = default;
+    Init(Init&&) = default;
+    ~Init() {}
+
     double* v;
 };
 
@@ -108,13 +114,17 @@ int main( int argc, char* argv[] )
   //           Include braces to encapsulate code between initialize and finalize calls
   Kokkos::initialize( argc, argv );
   {
+      cl::sycl::queue& q = *Kokkos::Experimental::SYCL().impl_internal_space_instance()->m_queue;
+      auto y = (double* const)cl::sycl::malloc_shared(sizeof(double) * N, q);
+      auto x = (double* const)cl::sycl::malloc_shared(sizeof(double) * M, q);
+      auto A = (double* const)cl::sycl::malloc_shared(sizeof(double) * N * M, q);
 
   // Allocate y, x vectors and Matrix A:
-  double * const y = new double[ N ];
+  //double * const y = new double[ N ];
   //Kokkos::View<double*> yy("yy", N);
   //printf("%s\n", typeid(yy).name());
-  double * const x = new double[ M ];
-  double * const A = new double[ N * M ];
+  //double * const x = new double[ M ];
+  //double * const A = new double[ N * M ];
 
   // Initialize y vector.
   // EXERCISE: Convert outer loop to Kokkos::parallel_for.
@@ -193,9 +203,12 @@ int main( int argc, char* argv[] )
   printf( "  N( %d ) M( %d ) nrepeat ( %d ) problem( %g MB ) time( %g s ) bandwidth( %g GB/s )\n",
           N, M, nrepeat, Gbytes * 1000, time, Gbytes * nrepeat / time );
 
-  delete[] A;
-  delete[] y;
-  delete[] x;
+  cl::sycl::free(A, q);
+  cl::sycl::free(y, q);
+  cl::sycl::free(x, q);
+  //delete[] A;
+  //delete[] y;
+  //delete[] x;
 
   // EXERCISE: finalize Kokkos runtime
   }
