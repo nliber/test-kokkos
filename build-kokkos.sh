@@ -14,7 +14,7 @@ declare install="${bld}"/install
 declare cmake_cxx_compiler="$(type -P icpx)"
 declare compdb="compile_commands.json"
 
-rm -rf "${bld}" "${install}"
+rm -rf "${bld}" "${install}" "${compdb}"
 mkdir -p "${bld}" "${install}"
 
 cd "${bld}"
@@ -35,7 +35,7 @@ cmake \
     "${kokkos_dir}"
 
 #cmake --build . --target install
-make -j install
+make -j90 install
 
-[[ -r "${compdb}" ]] && ln -fsv "${compdb}" "${kokkos_dir}"
+[[ -r "${compdb}" ]] && ln -fsv "${bld}/${compdb}" "${kokkos_dir}"
 
