@@ -24,8 +24,10 @@ cmake \
     -DCMAKE_EXE_LINKER_FLAGS= \
     -DCMAKE_INSTALL_PREFIX="${install}" \
     -DKokkos_ENABLE_SYCL=ON \
+    -DKokkos_ENABLE_OPENMP=OFF \
+    -DKokkos_ENABLE_OPENMPTARGET=OFF \
     -DKokkos_ENABLE_TESTS=ON \
-    -DKokkos_ENABLE_EXAMPLES=OFF \
+    -DKokkos_ENABLE_EXAMPLES=ON \
     -DKokkos_CXX_STANDARD=17 \
     -DCMAKE_VERBOSE_MAKEFILE=OFF \
     -DCMAKE_CXX_EXTENSIONS=OFF \
@@ -35,7 +37,7 @@ cmake \
     "${kokkos_dir}"
 
 #cmake --build . --target install
-make -j90 install
+make -j install
 
 [[ -r "${compdb}" ]] && ln -fsv "${bld}/${compdb}" "${kokkos_dir}"
 
